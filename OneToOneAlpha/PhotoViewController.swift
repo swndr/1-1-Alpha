@@ -13,7 +13,7 @@ import Parse
 class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     var sentImage:UIImage!
-    var receivedImage:UIImage!
+    //var receivedImage:UIImage!
     let imagePicker = UIImagePickerController()
     
     @IBOutlet weak var sentImageContainer: UIImageView!
@@ -34,8 +34,6 @@ class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UI
         
         receivedImageContainer.contentMode = .ScaleAspectFill
         receivedImageContainer.clipsToBounds = true
-        
-        dismissReceivedPhotoGesture = UITapGestureRecognizer(target: self, action: "didDismissReceivedPhoto:")
         
         getNewPhotos()
 
@@ -107,7 +105,7 @@ class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UI
     func getNewPhotos() {
         let query = PFQuery(className:"SentPhoto")
         query.whereKey("recipient", equalTo:(self.currentUser?.username)!)
-        //query.whereKey("viewed", equalTo:("false")) // not viewed yet
+        //query.whereKey("viewed", equalTo:"false") // not viewed yet
         query.findObjectsInBackgroundWithBlock {
             (objects: [PFObject]?, error: NSError?) -> Void in
             
@@ -119,7 +117,7 @@ class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UI
                     for object in objects {
                         
                         let imageFile = object["imageFile"]
-                        print(object["viewed"])
+                        print("Viewed: \(object["viewed"])")
                         print(imageFile)
                         
                         if imageFile != nil {
@@ -131,19 +129,19 @@ class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UI
                                 if error == nil {
                                     
                                     let receivedImage:UIImageView = UIImageView(frame: CGRect(x: 67, y: 364, width: 240, height: 240))
+                                    self.dismissReceivedPhotoGesture = UITapGestureRecognizer(target: self, action: "didDismissReceivedPhoto:")
                                     receivedImage.addGestureRecognizer(self.dismissReceivedPhotoGesture)
                                     receivedImage.userInteractionEnabled = true
                                     self.view.addSubview(receivedImage)
                                     
                                     receivedImage.image = UIImage(data: data!)
                                     
-                                    self.receivedImageIDs = [receivedImage.hash:object.objectId!]
-                                    
-                                    print(object)
+                                    self.receivedImageIDs[receivedImage.hash] = object.objectId!
+                                    print(self.receivedImageIDs)
                                 }
                                 
                                 }, progressBlock: { (percentDone: Int32) -> Void in
-                                    print(percentDone)
+                                    print("Progress: \(percentDone)")
                             })
                         }
                     }
@@ -157,16 +155,39 @@ class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UI
     
     func didDismissReceivedPhoto(sender:UITapGestureRecognizer) {
         
+        print("tapped")
         let id = self.receivedImageIDs[sender.view!.hash]
         print(id)
-
-        do {
-            let imageToUpdate = try PFQuery.getObjectOfClass("SentPhoto", objectId: id!)
-            imageToUpdate["viewed"] = true
-            print(imageToUpdate)
-        } catch {
-            print(error)
+        
+        
+        let query = PFQuery(className:"SentPhoto")
+        query.getObjectInBackgroundWithId(id!) {
+            (imageToUpdate: PFObject?, error: NSError?) -> Void in
+            if error != nil {
+                print(error)
+            } else if let imageToUpdate = imageToUpdate {
+                imageToUpdate["viewed"] = true
+                print(imageToUpdate)
+                imageToUpdate.saveInBackground()
+            }
         }
+
+//        do {
+//            let imageToUpdate = try PFQuery.getObjectOfClass("SentPhoto", objectId: id!)
+//            imageToUpdate["viewed"] = true
+//            imageToUpdate.saveInBackground()
+//            imageToUpdate.saveInBackgroundWithBlock({ (success, error) -> Void in
+//                if (success) {
+//                    print("saved")
+//                    // The object has been saved.
+//                } else {
+//                    // There was a problem, check error.description
+//                }
+//            })
+//            print(imageToUpdate)
+//        } catch {
+//            print(error)
+//        }
         
         sender.view!.removeFromSuperview()
     }
