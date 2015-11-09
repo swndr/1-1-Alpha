@@ -83,11 +83,23 @@ class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UI
                         userPhoto["viewed"] = false
                         userPhoto["imageFile"] = imageFile
                         
+                        var recipient = PFUser()
+                        let query = PFUser.query()
+                        query!.whereKey("username", equalTo:(self.currentUser!["recipient"]))
+                        
+                        do {
+                            recipient = try query!.getFirstObject() as! PFUser
+                            print("Recipient \(recipient)")
+                        } catch {
+                            print(error)
+                        }
+                        
                         // permissions...
-//                        let acl = PFACL()
-//                        acl.setPublicReadAccess(true)
-//                        acl.setPublicWriteAccess(true)
-//                        userPhoto.ACL = acl
+                        let acl = PFACL()
+                        acl.setPublicReadAccess(true)
+                        acl.setWriteAccess(true, forUser: recipient)
+                        acl.setPublicWriteAccess(true)
+                        userPhoto.ACL = acl
                         
                         userPhoto.saveInBackground()
                         print("saved")
