@@ -12,12 +12,15 @@ import Parse
 class LoggedInViewController: UIViewController {
 
     var receivedMessage = "pending"
+    var recipientStatus = "pending"
     @IBOutlet weak var confirmText: UILabel!
+    @IBOutlet weak var recipientText: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         confirmText.text = receivedMessage
+        recipientText.text = recipientStatus
     }
 
     override func didReceiveMemoryWarning() {

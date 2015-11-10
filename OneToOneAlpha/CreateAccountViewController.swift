@@ -14,6 +14,7 @@ class CreateAccountViewController: UIViewController {
     @IBOutlet weak var codeTextField: UITextField!
     
     var confirmMessage:String!
+    var recipientStatusMessage:String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,9 +25,51 @@ class CreateAccountViewController: UIViewController {
             print("found one")
             print(currentUser?.username)
             
-            // Do stuff with the user
-            confirmMessage = "Logged in user: \(currentUser?.username!)"
-            self.performSegueWithIdentifier("loginSegue", sender: nil)
+            if currentUser!["recipient"] as? String == "pending" {
+                // Still waiting for a partner
+                
+                    let query = PFQuery(className:"AccountCode")
+                    query.whereKey("code", equalTo:(currentUser!["code"]))
+                    query.findObjectsInBackgroundWithBlock {
+                        (objects: [PFObject]?, error: NSError?) -> Void in
+                        
+                        if error == nil {
+                            // The find succeeded.
+                            if let objects = objects! as? [PFObject] {
+                                print(objects.count)
+                                if objects.count == 1 {
+                                    // Existing code entry
+                                    let codeObject = objects.first
+                                    
+                                    if codeObject!["receiver"] as? String == "pending" {
+                                        // Still waiting
+                                        print("still waiting for someone to accept")
+                                    } else {
+                                        // Associate recipient
+                                        currentUser!["recipient"] = codeObject!["receiver"]
+                                        currentUser?.saveInBackground()
+                                        // Do stuff with the user
+                                        self.confirmMessage = "Logged in user: \(currentUser!.username!)"
+                                        self.recipientStatusMessage = "Recipient: \(currentUser!["recipient"])"
+                                        self.performSegueWithIdentifier("loginSegue", sender: nil)
+                                        
+                                    }
+                                
+                            } else {
+                                // Log details of the failure
+                                print("Error: \(error!) \(error!.userInfo)")
+                            }
+                        }
+                    }
+                }
+                
+                
+            } else {
+                // Do stuff with the user
+                confirmMessage = "Logged in user: \(currentUser!.username!)"
+                recipientStatusMessage = "Recipient: \(currentUser!["recipient"])"
+                self.performSegueWithIdentifier("loginSegue", sender: nil)
+            }
             
         } else {
             print("didn't find one")
@@ -55,7 +98,6 @@ class CreateAccountViewController: UIViewController {
     
     @IBAction func didPressGo(sender: UIButton) {
         
-        
             let query = PFQuery(className:"AccountCode")
             query.whereKey("code", equalTo:(self.codeTextField.text!))
             query.findObjectsInBackgroundWithBlock {
@@ -71,14 +113,15 @@ class CreateAccountViewController: UIViewController {
                             
                             let interval = NSDate().timeIntervalSinceDate((codeObject?.createdAt)!)
                             print(interval)
-                            if interval < 3600 {
+                            if interval < 3600 && codeObject!["used"] as! Bool == false {
                                 // Less than an hour, can auth this user
                                 
                                 var user = PFUser.currentUser()
-                                //user!.username = self.randomStringWithLength(8) as String
-                                user!.username = "testUser4"
+                                user!.username = self.randomStringWithLength(8) as String
+                                //user!.username = "testUser12"
                                 user!.password = "password"
                                 user!["recipient"] = codeObject!["creator"]
+                                user!["code"] = codeObject!["code"]
                                 
                                 user!.signUpInBackgroundWithBlock {
                                     (succeeded: Bool, error: NSError?) -> Void in
@@ -89,12 +132,12 @@ class CreateAccountViewController: UIViewController {
                                     } else {
                                         print("success: \(succeeded)")
                                         codeObject!["used"] = true
+                                        codeObject!["receiver"] = user!["username"]
                                         codeObject!.saveInBackground()
-                                        
-                                        // How to set the recipient for user1?
                                         
                                         // Hooray! Let them use the app now.
                                         self.confirmMessage = "Logged in user: \(user!.username!)"
+                                        self.recipientStatusMessage = "Recipient: \(user!["recipient"])"
                                         self.performSegueWithIdentifier("loginSegue", sender: nil)
                                     }
                                 }
@@ -106,7 +149,6 @@ class CreateAccountViewController: UIViewController {
                                 print("code expired try again")
                             }
 
-                            
                         
                         } else if objects.count > 1 {
                             print("duplicate")
@@ -116,10 +158,11 @@ class CreateAccountViewController: UIViewController {
                             let randomUsername = self.randomStringWithLength(8) as String
                             
                             var user = PFUser.currentUser()
-                            //user!.username = self.randomStringWithLength(8) as String
-                            user!.username = "testUser3"
+                            user!.username = self.randomStringWithLength(8) as String
+                            //user!.username = "testUser11"
                             user!.password = "password"
                             user!["recipient"] = "pending"
+                            user!["code"] = self.codeTextField.text!
                             
                             user!.signUpInBackgroundWithBlock {
                                 (succeeded: Bool, error: NSError?) -> Void in
@@ -132,8 +175,8 @@ class CreateAccountViewController: UIViewController {
                                     let accountCode = PFObject(className:"AccountCode")
                                     accountCode["code"] = self.codeTextField.text!
                                     accountCode["used"] = false
-                                    accountCode["creator"] = "testUser3"
-                                    //accountCode["creator"] = randomUsername
+                                    accountCode["creator"] = user!["username"]
+                                    accountCode["receiver"] = "pending"
                                     
                                     // permissions...
                                     let acl = PFACL()
@@ -144,6 +187,7 @@ class CreateAccountViewController: UIViewController {
                                     accountCode.saveInBackground()
                                     // Hooray! Let them use the app now.
                                     self.confirmMessage = "Logged in user: \(user!.username!)"
+                                    self.recipientStatusMessage = "Recipient: \(user!["recipient"])"
                                     self.performSegueWithIdentifier("loginSegue", sender: nil)
                                 }
                             }
@@ -165,8 +209,16 @@ class CreateAccountViewController: UIViewController {
         {
             if let destinationVC = segue.destinationViewController as? LoggedInViewController {
                 destinationVC.receivedMessage = confirmMessage
+                destinationVC.recipientStatus = recipientStatusMessage
             }
         }
+    }
+    
+    
+    @IBAction func didPressReset(sender: UIButton) {
+        
+        PFUser.logOut()
+        
     }
     
     
