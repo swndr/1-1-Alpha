@@ -117,6 +117,7 @@ class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UI
     func getNewPhotos() {
         let query = PFQuery(className:"SentPhoto")
         query.whereKey("recipient", equalTo:(self.currentUser?.username)!)
+        query.whereKey("viewed", equalTo:NSNumber(bool: false)) // not viewed yet
         //query.whereKey("viewed", equalTo:"false") // not viewed yet
         query.findObjectsInBackgroundWithBlock {
             (objects: [PFObject]?, error: NSError?) -> Void in
@@ -209,7 +210,7 @@ class PhotoViewController: UIViewController, UIImagePickerControllerDelegate, UI
         
         PFUser.logOut()
         currentUser = PFUser.currentUser() // this will now be nil
-        self.navigationController?.dismissViewControllerAnimated(true, completion: { () -> Void in
+        self.navigationController?.dismissViewControllerAnimated(false, completion: { () -> Void in
             
         })
     }

@@ -19,6 +19,8 @@
 		C23C6EA81BEFC550003B2AE0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23C6EA61BEFC550003B2AE0 /* AppDelegate.swift */; };
 		C23C6EA91BEFC550003B2AE0 /* OnboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23C6EA71BEFC550003B2AE0 /* OnboardViewController.swift */; };
 		C2D031EF1BEFD8B00077A434 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D031EE1BEFD8B00077A434 /* PhotoViewController.swift */; };
+		C2E9768E1BF18F19004762A6 /* CreateAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9768D1BF18F19004762A6 /* CreateAccountViewController.swift */; };
+		C2E976901BF259C0004762A6 /* LoggedInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9768F1BF259C0004762A6 /* LoggedInViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +42,8 @@
 		C23C6EA71BEFC550003B2AE0 /* OnboardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OnboardViewController.swift; path = OneToOneAlpha/OneToOneAlpha/OnboardViewController.swift; sourceTree = "<group>"; };
 		C23C6EAA1BEFC5DB003B2AE0 /* OneToOneAlpha-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "OneToOneAlpha-Bridging-Header.h"; path = "OneToOneAlpha/OneToOneAlpha/OneToOneAlpha-Bridging-Header.h"; sourceTree = "<group>"; };
 		C2D031EE1BEFD8B00077A434 /* PhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PhotoViewController.swift; path = OneToOneAlpha/OneToOneAlpha/PhotoViewController.swift; sourceTree = "<group>"; };
+		C2E9768D1BF18F19004762A6 /* CreateAccountViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CreateAccountViewController.swift; path = OneToOneAlpha/OneToOneAlpha/CreateAccountViewController.swift; sourceTree = "<group>"; };
+		C2E9768F1BF259C0004762A6 /* LoggedInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoggedInViewController.swift; path = OneToOneAlpha/OneToOneAlpha/LoggedInViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +95,8 @@
 			children = (
 				C23C6EA61BEFC550003B2AE0 /* AppDelegate.swift */,
 				C23C6EA71BEFC550003B2AE0 /* OnboardViewController.swift */,
+				C2E9768D1BF18F19004762A6 /* CreateAccountViewController.swift */,
+				C2E9768F1BF259C0004762A6 /* LoggedInViewController.swift */,
 				C2D031EE1BEFD8B00077A434 /* PhotoViewController.swift */,
 				814C3AC61B69877600E307BB /* Main.storyboard */,
 				C226B0AA1BEFD291000612F9 /* Launch Screen.storyboard */,
@@ -213,6 +219,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2E9768E1BF18F19004762A6 /* CreateAccountViewController.swift in Sources */,
+				C2E976901BF259C0004762A6 /* LoggedInViewController.swift in Sources */,
 				C23C6EA91BEFC550003B2AE0 /* OnboardViewController.swift in Sources */,
 				C23C6EA81BEFC550003B2AE0 /* AppDelegate.swift in Sources */,
 				C2D031EF1BEFD8B00077A434 /* PhotoViewController.swift in Sources */,
